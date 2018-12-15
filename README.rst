@@ -1,20 +1,12 @@
-.. image:: https://raw.githubusercontent.com/jaymoulin/google-music-manager/master/logo.png
-    :alt: logo
-    :target: http://github.com/jaymoulin/google-music-manager
+===============================
+Google Music Manager - Uploader
+===============================
 
-====================================
-Google Music Manager - Python Daemon
-====================================
+
 
 .. image:: https://img.shields.io/github/release/jaymoulin/google-music-manager.svg
     :alt: latest release
     :target: http://github.com/jaymoulin/google-music-manager/releases
-.. image:: https://img.shields.io/pypi/v/google-music-manager-auth.svg
-    :alt: PyPI version
-    :target: https://pypi.org/project/google-music-manager-auth/
-.. image:: https://img.shields.io/pypi/v/google-music-manager-downloader.svg
-    :alt: PyPI version
-    :target: https://pypi.org/project/google-music-manager-downloader/
 .. image:: https://img.shields.io/pypi/v/google-music-manager-uploader.svg
     :alt: PyPI version
     :target: https://pypi.org/project/google-music-manager-uploader/
@@ -41,19 +33,8 @@ also, this program needs `watchdog`, `gmusicapi`, `netifaces` and `bs4` Python l
 .. code::
 
     apt-get install python3-pip libav-tools build-essential
-    pip3 install watchdog gmusicapi bs4 netifaces
-
-Then install the package you need
-
-.. code::
-
-    pip3 install google-music-manager-downloader
-
-Or
-
-.. code::
-
     pip3 install google-music-manager-uploader
+
 
 Once installed, You have to authenticate to Google Music via the `google-music-auth` command
 
@@ -88,39 +69,19 @@ It will *NOT* upload already existing files, *ONLY* new files while the daemon i
 .. code::
 
     usage: google-music-uploader [-h] [--directory DIRECTORY] [--oauth OAUTH] [-r]
-                                  [--uploader_id UPLOADER_ID] [-o]
-
-        optional arguments:
-            -h, --help          show this help message and exit
-            --directory DIRECTORY, -d DIRECTORY
-                                Music Folder to upload from (default: .)
-            --oauth OAUTH, -a OAUTH
-                                Path to oauth file (default: ~/oauth)
-            -r, --remove        Remove files if present (default: False)
-            --uploader_id UPLOADER_ID, -u UPLOADER_ID
-                                Uploader identification (should be an uppercase MAC
-                                address) (default: <current eth0 MAC address>)
-            -o, --oneshot       Upload folder and exit (default: False)
-
-Downloader
-~~~~~~~~~~
-
-This program will download all your uploaded musics from Google Music to a given directory.
-
-.. code::
-
-    usage: google-music-download [-h] [--directory DIRECTORY] [--oauth OAUTH]
+                              [--uploader_id UPLOADER_ID] [-o]
 
     optional arguments:
-        -h, --help              show this help message and exit
-        --directory DIRECTORY, -d DIRECTORY
-                                Music Folder to download to (default: .)
-        --oauth OAUTH, -a OAUTH
-                                Path to oauth file (default: ~/oauth)
-        --device_id DEVICE_ID, -i DEVICE_ID
-                                Device identification (should be an uppercase MAC
-                                address) (default: <current eth0 MAC address>)
-
+      -h, --help            show this help message and exit
+      --directory DIRECTORY, -d DIRECTORY
+                            Music Folder to upload from (default: .)
+      --oauth OAUTH, -a OAUTH
+                            Path to oauth file (default: ~/oauth)
+      -r, --remove          Remove files if present (default: False)
+      --uploader_id UPLOADER_ID, -u UPLOADER_ID
+                            Uploader identification (should be an uppercase MAC
+                            address) (default: <current eth0 MAC address>)
+      -o, --oneshot         Upload folder and exit (default: False)
 
 =====
 About

@@ -1,3 +1,4 @@
 build
 dist
-google_music_manager*.egg-info
+google_music_manager_uploader.egg-info
+google_music_manager_uploader
