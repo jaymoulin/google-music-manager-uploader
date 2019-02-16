@@ -1,3 +1,8 @@
+.. image:: https://raw.githubusercontent.com/jaymoulin/google-music-manager-uploader/master/logo.png
+    :alt: logo
+    :target: http://github.com/jaymoulin/google-music-manager-uploader
+
+
 ===============================
 Google Music Manager - Uploader
 ===============================
