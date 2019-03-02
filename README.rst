@@ -36,7 +36,7 @@ Installation
 ------------
 
 Avconv is needed to convert some of your files due to Google's MP3 constraint
-also, this program needs `watchdog`, `gmusicapi`, `netifaces` and `bs4` Python libraries to work. 
+also, this program needs `watchdog`, `gmusicapi`, `netifaces`, `requests` and `bs4` Python libraries to work.
 
 .. code::
 
@@ -77,7 +77,7 @@ It will *NOT* upload already existing files, *ONLY* new files while the daemon i
 .. code::
 
     usage: google-music-uploader [-h] [--directory DIRECTORY] [--oauth OAUTH] [-r]
-                              [--uploader_id UPLOADER_ID] [-o]
+                              [--uploader_id UPLOADER_ID] [-o] [--deduplicate_api DEDUPLICATE_API]
 
     optional arguments:
       -h, --help            show this help message and exit
@@ -90,6 +90,80 @@ It will *NOT* upload already existing files, *ONLY* new files while the daemon i
                             Uploader identification (should be an uppercase MAC
                             address) (default: <current eth0 MAC address>)
       -o, --oneshot         Upload folder and exit (default: False)
+      -w DEDUPLICATE_API, --deduplicate_api DEDUPLICATE_API
+                            Deduplicate API (should be HTTP and compatible with
+                            the manifest (see README)) (default: None)
+
+Deduplicate
+~~~~~~~~~~~
+
+This program will send all files or the specified file to the deduplication API
+
+.. code::
+
+    usage: google-music-upload-deduplicate [-h] --deduplicate_api DEDUPLICATE_API
+                                       [--directory DIRECTORY] [--file FILE]
+                                       [--remove]
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      --directory DIRECTORY, -d DIRECTORY
+                            Music Folder to deduplicate
+      --file FILE, -f FILE
+                            Music file path to deduplicate
+      -r, --remove          Unmark specified file/folder (default: False)
+      -w DEDUPLICATE_API, --deduplicate_api DEDUPLICATE_API
+                            Deduplicate API (should be HTTP and compatible with
+                            the manifest (see README)) (default: None)
+
+=================
+Deduplication API
+=================
+
+Preface
+-------
+
+This API is completely optional. You don't have to implement this. It will only help you to avoid useless Google calls
+
+You can use your own API implementation to avoid sampling + Google upload.
+This API should match with the following requirements.
+
+You may want to use this existing one : `Google MusicManager Deduplicate API <https://github.com/jaymoulin/google-musicmanager-dedup-api>`_.
+
+Exists
+------
+
++------+--------+--------------------------+----------------------------------------------------+
+| path | method | parameter                | status code                                        |
++======+========+==========================+====================================================+
+| /    | GET    | name | description       | value             | description                    |
+|      |        +------+-------------------+-------------------+--------------------------------+
+|      |        | path | path of your file | 200 or 204        | Your file was already uploaded |
+|      |        |      |                   +-------------------+--------------------------------+
+|      |        |      |                   | 404 (or whatever) | Your file was NOT uploaded     |
++------+--------+------+-------------------+-------------------+--------------------------------+
+
+Saving
+------
+
++------+--------+--------------------------+-------------------------------------------------+
+| path | method | parameter                | status code                                     |
++======+========+==========================+=================================================+
+| /    | POST   | name | description       | value    | description                          |
+|      |        +------+-------------------+----------+--------------------------------------+
+|      |        | path | path of your file | whatever | Status code does not change anything |
++------+--------+------+-------------------+----------+--------------------------------------+
+
+Removing
+--------
+
++------+--------+--------------------------+-------------------------------------------------+
+| path | method | parameter                | status code                                     |
++======+========+==========================+=================================================+
+| /    | DELETE | name | description       | value    | description                          |
+|      |        +------+-------------------+----------+--------------------------------------+
+|      |        | path | path of your file | whatever | Status code does not change anything |
++------+--------+------+-------------------+----------+--------------------------------------+
 
 =====
 About
