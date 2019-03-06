@@ -78,7 +78,7 @@ def upload_file(
     while retry > 0:
         try:
             if os.path.isfile(file_path):
-                logger.info("Uploading {}? " % file_path)
+                logger.info("Uploading %s? " % file_path)
                 if deduplicate_api:
                     exists = deduplicate_api.exists(file_path)
                     logger.info("Deduplicate API: file exists? " + "yes" if exists else "no")
