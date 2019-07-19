@@ -9,9 +9,9 @@ Google Music Manager - Uploader
 
 
 
-.. image:: https://img.shields.io/github/release/jaymoulin/google-music-manager.svg
+.. image:: https://img.shields.io/github/release/jaymoulin/google-music-manager-uploader.svg
     :alt: latest release
-    :target: http://github.com/jaymoulin/google-music-manager/releases
+    :target: http://github.com/jaymoulin/google-music-manager-uploaded/releases
 .. image:: https://img.shields.io/pypi/v/google-music-manager-uploader.svg
     :alt: PyPI version
     :target: https://pypi.org/project/google-music-manager-uploader/
