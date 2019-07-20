@@ -76,7 +76,7 @@ It will *NOT* upload already existing files, *ONLY* new files while the daemon i
 
 .. code::
 
-    usage: google-music-uploader [-h] [--directory DIRECTORY] [--oauth OAUTH] [-r]
+    usage: google-music-upload [-h] [--directory DIRECTORY] [--oauth OAUTH] [-r]
                               [--uploader_id UPLOADER_ID] [-o] [--deduplicate_api DEDUPLICATE_API]
 
     optional arguments:
