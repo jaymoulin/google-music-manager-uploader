@@ -93,6 +93,10 @@ It will *NOT* upload already existing files, *ONLY* new files while the daemon i
       -w DEDUPLICATE_API, --deduplicate_api DEDUPLICATE_API
                             Deduplicate API (should be HTTP and compatible with
                             the manifest (see README)) (default: None)
+      -l LOGIN, --login LOGIN
+                            Login (for Cover art uploading) (default: None)
+      -p PASSWORD, --password PASSWORD
+                            Password (for Cover art uploading) (default: None)
 
 Deduplicate
 ~~~~~~~~~~~
@@ -115,6 +119,15 @@ This program will send all files or the specified file to the deduplication API
       -w DEDUPLICATE_API, --deduplicate_api DEDUPLICATE_API
                             Deduplicate API (should be HTTP and compatible with
                             the manifest (see README)) (default: None)
+
+=======================
+Known issue : Cover Art
+=======================
+
+As Google does not allow direct Cover art upload from MP3 tags, a workaround was implemented.
+For *google-music-manager-uploader* to be able to upload Cover Art, please provide your *login* and *password*
+using the *--login* and *--password* parameters. This will allow *google-music-manager-uploader* to connect through
+web client to change cover art as soon as the mp3 file is uploaded if it contains an image in the *APIC* ID3 tag.
 
 =================
 Deduplication API
