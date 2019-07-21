@@ -14,7 +14,7 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from gmusicapi import Musicmanager, Webclient
 from gmusicapi.exceptions import CallFailure
-from mutagen.mp3 import MP3
+from mutagen.mp3 import MP3, HeaderNotFoundError
 import tempfile
 
 __DEFAULT_IFACE__ = netifaces.gateways()['default'][netifaces.AF_INET][1]
@@ -84,7 +84,10 @@ def upload_file(
     while retry > 0:
         try:
             if os.path.isfile(file_path):
-                mp3_file = MP3(file_path)
+                try:
+                    mp3_file = MP3(file_path)
+                except HeaderNotFoundError as e:
+                    mp3_file = None  # probably not an MP3 file
                 logger.info("Uploading %s? " % file_path)
                 if deduplicate_api:
                     exists = deduplicate_api.exists(file_path)
@@ -94,7 +97,7 @@ def upload_file(
                 uploaded, matched, not_uploaded = api.upload(file_path, True)
                 if (uploaded or matched) and deduplicate_api:
                     deduplicate_api.save(file_path)
-                if (uploaded or matched) and webclient and mp3_file.tags.getall('APIC'):
+                if (uploaded or matched) and webclient and mp3_file and mp3_file.tags.getall('APIC'):
                     logger.info("Uploading cover art %s" % file_path)
                     temp_file = tempfile.NamedTemporaryFile()
                     temp_file.write(mp3_file.tags.getall('APIC')[0].data)
