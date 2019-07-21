@@ -12,10 +12,8 @@ import requests
 
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-from gmusicapi import Musicmanager, Webclient
+from .manager import Manager as Musicmanager
 from gmusicapi.exceptions import CallFailure
-from mutagen.mp3 import MP3, HeaderNotFoundError
-import tempfile
 
 __DEFAULT_IFACE__ = netifaces.gateways()['default'][netifaces.AF_INET][1]
 __DEFAULT_MAC__ = netifaces.ifaddresses(__DEFAULT_IFACE__)[netifaces.AF_LINK][0]['addr'].upper()
@@ -48,7 +46,6 @@ class MusicToUpload(FileSystemEventHandler):
                     logger=self.logger,
                     remove=self.remove,
                     deduplicate_api=self.deduplicate_api,
-                    webclient=self.webclient,
                 )
         else:
             upload_file(
@@ -57,7 +54,6 @@ class MusicToUpload(FileSystemEventHandler):
                 logger=self.logger,
                 remove=self.remove,
                 deduplicate_api=self.deduplicate_api,
-                webclient=self.webclient,
             )
 
 
@@ -67,7 +63,6 @@ def upload_file(
     logger: logging.Logger,
     remove: bool = False,
     deduplicate_api: DeduplicateApi = None,
-    webclient: Webclient = None,
 ) -> None:
     """
     Uploads a specific file by its path
@@ -76,7 +71,6 @@ def upload_file(
     :param logger: logging.Logger object for logs
     :param remove: Boolean. should remove file? False by default
     :param deduplicate_api: DeduplicateApi. Api for deduplicating uploads. None by default
-    :param webclient: Webclient. Api for cover art uploading. None by default
     :raises CallFailure:
     :return:
     """
@@ -84,10 +78,6 @@ def upload_file(
     while retry > 0:
         try:
             if os.path.isfile(file_path):
-                try:
-                    mp3_file = MP3(file_path)
-                except HeaderNotFoundError as e:
-                    mp3_file = None  # probably not an MP3 file
                 logger.info("Uploading %s? " % file_path)
                 if deduplicate_api:
                     exists = deduplicate_api.exists(file_path)
@@ -97,15 +87,6 @@ def upload_file(
                 uploaded, matched, not_uploaded = api.upload(file_path, True)
                 if (uploaded or matched) and deduplicate_api:
                     deduplicate_api.save(file_path)
-                if (uploaded or matched) and webclient and mp3_file and mp3_file.tags.getall('APIC'):
-                    logger.info("Uploading cover art %s" % file_path)
-                    temp_file = tempfile.NamedTemporaryFile()
-                    temp_file.write(mp3_file.tags.getall('APIC')[0].data)
-                    webclient.upload_album_art(
-                        uploaded.get(file_path) or matched.get(file_path),
-                        temp_file.name
-                    )
-                    temp_file.close()
                 if remove and (uploaded or matched):
                     os.remove(file_path)
             retry = 0
@@ -127,8 +108,6 @@ def upload(
     uploader_id: str = __DEFAULT_MAC__,
     oneshot: bool = False,
     deduplicate_api: str = None,
-    login: str = None,
-    password: str = None,
 ) -> None:
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
@@ -139,11 +118,6 @@ def upload(
         raise ValueError("Error with oauth credentials")
     observer = None
     deduplicate = DeduplicateApi(deduplicate_api) if deduplicate_api else None
-    webclient = None
-    if login and password:
-        webclient = Webclient()
-        if not webclient.login(login, password):
-            raise ValueError('Credentials for cover art uploading seems erroneous')
     if not oneshot:
         event_handler = MusicToUpload()
         event_handler.api = api
@@ -153,16 +127,13 @@ def upload(
         event_handler.remove = remove
         event_handler.logger = logger
         event_handler.deduplicate_api = deduplicate
-        event_handler.webclient = webclient
         observer = Observer()
         observer.schedule(event_handler, directory, recursive=True)
         observer.start()
     files = [file for file in glob.glob(glob.escape(directory) + '/**/*', recursive=True)]
     for file_path in files:
-        upload_file(api, file_path, logger, remove=remove, deduplicate_api=deduplicate, webclient=webclient)
+        upload_file(api, file_path, logger, remove=remove, deduplicate_api=deduplicate)
     if oneshot:
-        if webclient:
-            webclient.logout()
         sys.exit(0)
     try:
         while True:
@@ -210,18 +181,6 @@ def main():
         default=None,
         help="Deduplicate API (should be HTTP and compatible with the manifest (see README)) (default: None)"
     )
-    parser.add_argument(
-        "--login",
-        '-l',
-        default=None,
-        help="Login (for Cover art uploading) (default: None)"
-    )
-    parser.add_argument(
-        "--password",
-        '-p',
-        default=None,
-        help="Password (for Cover art uploading) (default: None)"
-    )
     args = parser.parse_args()
     upload(
         directory=args.directory,
@@ -230,8 +189,6 @@ def main():
         uploader_id=args.uploader_id,
         oneshot=args.oneshot,
         deduplicate_api=args.deduplicate_api,
-        login=args.login,
-        password=args.password,
     )
 
 
