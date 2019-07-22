@@ -1,39 +1,50 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+"""
+This is complete madness and should not replace GMusicApi behaviour but I have no other solution for now
+"""
+
 from gmusicapi import Musicmanager
 from gmusicapi.utils import utils
 from gmusicapi.exceptions import NotLoggedIn
 from gmusicapi.protocol import musicmanager, upload_pb2, locker_pb2
+from past.builtins import basestring
 import mutagen
 import base64
 import time
 
 
 class Manager(Musicmanager):
-
-    def upload(
-        self,
-        filepaths,
-        enable_matching=False,
-        enable_transcoding=True,
-        transcode_quality='320k',
-        include_album_art=True,
-    ):
+    @utils.accept_singleton(basestring)
+    @utils.empty_arg_shortcircuit(return_code='{}')
+    def upload(self,
+       filepaths,
+       enable_matching=False,
+       enable_transcoding=True,
+       transcode_quality='320k',
+       include_album_art=True,
+   ):
         """Uploads the given filepaths.
+
         All non-mp3 files will be transcoded before being uploaded.
         This is a limitation of Google's backend.
+
         An available installation of ffmpeg or avconv is required in most cases:
         see `the installation page
         <https://unofficial-google-music-api.readthedocs.io/en
         /latest/usage.html?#installation>`__ for details.
+
         Returns a 3-tuple ``(uploaded, matched, not_uploaded)`` of dictionaries, eg::
+
             (
                 {'<filepath>': '<new server id>'},               # uploaded
                 {'<filepath>': '<new server id>'},               # matched
                 {'<filepath>': '<reason, eg ALREADY_EXISTS>'}    # not uploaded
             )
+
         :param filepaths: a list of filepaths, or a single filepath.
+
         :param enable_matching: if ``True``, attempt to use `scan and match
           <http://support.google.com/googleplay/bin/answer.py?hl=en&answer=2920799&topic=2450455>`__
           to avoid uploading every song.
@@ -45,20 +56,25 @@ class Manager(Musicmanager):
           (or with the Music Manager).
           Fixing matches from gmusicapi may be supported in a future release; see issue `#89
           <https://github.com/simon-weber/gmusicapi/issues/89>`__.
+
         :param enable_transcoding:
           if ``False``, non-MP3 files that aren't matched using `scan and match
           <http://support.google.com/googleplay/bin/answer.py?hl=en&answer=2920799&topic=2450455>`__
           will not be uploaded.
+
         :param transcode_quality: if int, pass to ffmpeg/avconv ``-q:a`` for libmp3lame
           (`lower-better int,
           <http://trac.ffmpeg.org/wiki/Encoding%20VBR%20(Variable%20Bit%20Rate)%20mp3%20audio>`__).
           If string, pass to ffmpeg/avconv ``-b:a`` (eg ``'128k'`` for an average bitrate of 128k).
           The default is 320kbps cbr (the highest possible quality).
+
         :param include_album_art: If ``False``, do not upload embedded album art.
           If string, upload external album art at given filepath.
           Google Music supports GIF, JPEG, and PNG image formats.
+
         All Google-supported filetypes are supported; see `Google's documentation
         <http://support.google.com/googleplay/bin/answer.py?hl=en&answer=1100462>`__.
+
         If ``PERMANENT_ERROR`` is given as a not_uploaded reason, attempts to reupload will never
         succeed. The file will need to be changed before the server will reconsider it; the easiest
         way is to change metadata tags (it's not important that the tag be uploaded, just that the
@@ -104,11 +120,9 @@ class Manager(Musicmanager):
         # TODO allow metadata faking
 
         # Upload metadata; the server tells us what to do next.
-        res = self._make_call(
-            musicmanager.UploadMetadata,
-            [t for (path, t) in local_info.values()],
-            self.uploader_id
-        )
+        res = self._make_call(musicmanager.UploadMetadata,
+                              [t for (path, t) in local_info.values()],
+                              self.uploader_id)
 
         # TODO checking for proper contents should be handled in verification
         md_res = res.metadata_response
@@ -129,50 +143,50 @@ class Manager(Musicmanager):
                 if include_album_art is True:  # Load embedded album art.
                     song = mutagen.File(path)
 
-                    if isinstance(song, mutagen.mp3.MP3):
+                    if isinstance(song, (mutagen.mp3.MP3)):
                         # Search through all the APIC frames to find the cover (type 3).
                         for pic in song.tags.getall('APIC'):
                             if pic.type == 3:
                                 album_art_image = pic.data
-                    elif isinstance(song, mutagen.flac.FLAC):
-                        # Search through all the picture frames to find the cover (type 3).
-                        for pic in song.pictures:
-                            if pic.type == 3:
-                                album_art_image = pic.data
-                                break
-                    elif isinstance(song, mutagen.mp4.MP4):
-                        if 'covr' in song:
-                            album_art_image = song['covr'][0]
-                    elif isinstance(song, mutagen.asf.ASF):
-                        if 'WM/Picture' in song:
-                            # Search through all the WM/Picture frames to find the cover (type 3).
-                            for pic in song['WM/Picture']:
-                                data = bytes(pic)
-                                if data[0] == 3:
-                                    # Parse out the image data according to the WM_PICTURE spec:
-                                    # 1 byte type + 4 bytes data length + null-terminated mime +
-                                    # null-terminated description + data
-                                    pos = 5
-                                    while data[pos:pos + 2] != b"\x00\x00":
-                                        pos += 2
+                elif isinstance(song, mutagen.flac.FLAC):
+                    # Search through all the picture frames to find the cover (type 3).
+                    for pic in song.pictures:
+                        if pic.type == 3:
+                            album_art_image = pic.data
+                            break
+                elif isinstance(song, mutagen.mp4.MP4):
+                    if 'covr' in song:
+                        album_art_image = song['covr'][0]
+                elif isinstance(song, mutagen.asf.ASF):
+                    if 'WM/Picture' in song:
+                        # Search through all the WM/Picture frames to find the cover (type 3).
+                        for pic in song['WM/Picture']:
+                            data = bytes(pic)
+                            if data[0] == 3:
+                                # Parse out the image data according to the WM_PICTURE spec:
+                                # 1 byte type + 4 bytes data length + null-terminated mime +
+                                # null-terminated description + data
+                                pos = 5
+                                while data[pos:pos + 2] != b"\x00\x00":
                                     pos += 2
-                                    while data[pos:pos + 2] != b"\x00\x00":
-                                        pos += 2
+                                pos += 2
+                                while data[pos:pos + 2] != b"\x00\x00":
+                                    pos += 2
 
-                                    album_art_image = data[pos + 2:]
-                                    break
-                    elif isinstance(song, mutagen.oggvorbis.OggVorbis):
-                        if 'metadata_block_picture' in song:
-                            # Search through all the picture frames to find the cover (type 3).
-                            for pic in song['metadata_block_picture']:
-                                # Mutagen does not parse out the picture fields to attributes
-                                # like with FLAC, so we use the FLAC Picture class to do so.
-                                # Picture blocks are base64 encoded in Ogg Vorbis.
-                                picture = mutagen.flac.Picture(base64.b64decode(pic))
+                                album_art_image = data[pos + 2:]
+                                break
+                elif isinstance(song, mutagen.oggvorbis.OggVorbis):
+                    if 'metadata_block_picture' in song:
+                        # Search through all the picture frames to find the cover (type 3).
+                        for pic in song['metadata_block_picture']:
+                            # Mutagen does not parse out the picture fields to attributes
+                            # like with FLAC, so we use the FLAC Picture class to do so.
+                            # Picture blocks are base64 encoded in Ogg Vorbis.
+                            picture = mutagen.flac.Picture(base64.b64decode(pic))
 
-                                if picture.type == 3:
-                                    album_art_image = picture.data
-                                    break
+                            if picture.type == 3:
+                                album_art_image = picture.data
+                                break
                 else:  # Load external album art.
                     try:
                         with open(include_album_art, 'rb') as f:
@@ -185,13 +199,13 @@ class Manager(Musicmanager):
 
             try:
                 res = self._make_call(
-                    musicmanager.ProvideSample,
+                    MyProvideSample,
                     path,
                     sample_request,
                     track,
                     self.uploader_id,
                     bogus_sample,
-                    album_art_image,
+                    album_art_image
                 )
 
             except (IOError, ValueError) as e:
@@ -244,15 +258,9 @@ class Manager(Musicmanager):
                 attempts = 0
 
                 while should_retry and attempts < 10:
-                    session = self._make_call(
-                        musicmanager.GetUploadSession,
-                        self.uploader_id,
-                        len(uploaded),
-                        track,
-                        path,
-                        server_id,
-                        do_not_rematch,
-                    )
+                    session = self._make_call(musicmanager.GetUploadSession,
+                                              self.uploader_id, len(uploaded),
+                                              track, path, server_id, do_not_rematch)
                     attempts += 1
 
                     got_session, error_details = \
@@ -263,12 +271,8 @@ class Manager(Musicmanager):
                         break
 
                     should_retry, reason, error_code = error_details
-                    self.logger.debug(
-                        "problem getting upload session: %s\ncode=%s retrying=%s",
-                        reason,
-                        error_code,
-                        should_retry
-                    )
+                    self.logger.debug("problem getting upload session: %s\ncode=%s retrying=%s",
+                                      reason, error_code, should_retry)
 
                     if error_code == 200 and do_not_rematch:
                         # reupload requests need to wait on a server sync
@@ -308,7 +312,8 @@ class Manager(Musicmanager):
                     with open(path, 'rb') as f:
                         contents = f.read()
 
-                upload_response = self._make_call(musicmanager.UploadFile, session_url, content_type, contents)
+                upload_response = self._make_call(musicmanager.UploadFile,
+                                                  session_url, content_type, contents)
 
                 success = upload_response.get('sessionStatus', {}).get('state')
                 if success:
@@ -322,3 +327,51 @@ class Manager(Musicmanager):
             self._make_call(musicmanager.UpdateUploadState, 'stopped', self.uploader_id)
 
         return uploaded, matched, not_uploaded
+
+
+class MyProvideSample(musicmanager.MmCall):
+    """Give the server a scan and match sample.
+    The sample is a 128k mp3 slice of the file, usually 15 seconds long."""
+
+    static_method = 'POST'
+    static_params = {'version': 1}
+    static_url = musicmanager._android_url + 'sample'
+
+    @staticmethod
+    @musicmanager.pb
+    def dynamic_data(filepath, server_challenge, track, uploader_id, mock_sample=None, album_art_image=None):
+        """Raise IOError on transcoding problems, or ValueError for invalid input.
+
+        :param mock_sample: if provided, will be sent in place of a proper sample
+
+        """
+        msg = upload_pb2.UploadSampleRequest()
+
+        msg.uploader_id = uploader_id
+
+        sample_msg = upload_pb2.TrackSample()
+        sample_msg.track.CopyFrom(track)
+        sample_msg.signed_challenge_info.CopyFrom(server_challenge)
+
+        sample_spec = server_challenge.challenge_info  # convenience
+
+        if mock_sample is None:
+            # The sample is simply a small (usually 15 second) clip of the song,
+            # transcoded into 128kbs mp3. The server dictates where the cut should be made.
+            sample_msg.sample = utils.transcode_to_mp3(
+                filepath, quality='128k',
+                slice_start=sample_spec.start_millis // 1000,
+                slice_duration=sample_spec.duration_millis // 1000
+            )
+        else:
+            sample_msg.sample = mock_sample
+
+        if album_art_image:
+            album_art = upload_pb2.ImageUnion()
+            album_art.user_album_art = album_art_image
+            sample_msg.user_album_art.CopyFrom(album_art)
+
+        # You can provide multiple samples; I just provide one at a time.
+        msg.track_sample.extend([sample_msg])
+
+        return msg
