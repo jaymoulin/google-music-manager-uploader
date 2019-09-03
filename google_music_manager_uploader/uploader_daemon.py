@@ -85,6 +85,8 @@ def upload_file(
                     if exists:
                         return
                 uploaded, matched, not_uploaded = api.upload(file_path, True)
+                if not_uploaded:
+                    logger.info("Not uploaded %s" % file_path)
                 if (uploaded or matched) and deduplicate_api:
                     deduplicate_api.save(file_path)
                 if remove and (uploaded or matched):
@@ -109,8 +111,12 @@ def upload(
     oneshot: bool = False,
     deduplicate_api: str = None,
 ) -> None:
-    logging.basicConfig(level=logging.INFO)
+    handler = logging.StreamHandler()
+    handler.setLevel(logging.DEBUG)
+    handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
     logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
+    logger.addHandler(handler)
     logger.info("Init Daemon - Press Ctrl+C to quit")
 
     api = Musicmanager()
