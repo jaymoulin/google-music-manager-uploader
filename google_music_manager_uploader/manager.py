@@ -143,7 +143,7 @@ class Manager(Musicmanager):
                 if include_album_art is True:  # Load embedded album art.
                     song = mutagen.File(path)
 
-                    if isinstance(song, (mutagen.mp3.MP3)):
+                    if isinstance(song, (mutagen.mp3.MP3)) and song.tags is not None:
                         # Search through all the APIC frames to find the cover (type 3).
                         for pic in song.tags.getall('APIC'):
                             if pic.type == 3:
