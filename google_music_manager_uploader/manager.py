@@ -99,7 +99,7 @@ class Manager(Musicmanager):
             try:
                 track = musicmanager.UploadMetadata.fill_track_info(path)
             except BaseException as e:
-                self.logger.exception("problem gathering local info of '%r'", path)
+                self.logger.warning("problem gathering local info of '%r'", path)
 
                 user_err_msg = str(e)
 

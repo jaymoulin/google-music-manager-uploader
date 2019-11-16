@@ -3,5 +3,5 @@ This program will replace former Google MusicManager to upload your music librar
 """
 
 __all__ = ['uploader_daemon']
-__version__ = '1.5.6'
+__version__ = '1.5.7'
 
