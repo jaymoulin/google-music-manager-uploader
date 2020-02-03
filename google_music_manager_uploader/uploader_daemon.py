@@ -81,7 +81,7 @@ def upload_file(
                 logger.info("Uploading %s? " % file_path)
                 if deduplicate_api:
                     exists = deduplicate_api.exists(file_path)
-                    logger.info("Deduplicate API: file exists? " + "yes" if exists else "no")
+                    logger.info("Deduplicate API: file exists? %s" % ("yes" if exists else "no"))
                     if exists:
                         return
                 uploaded, matched, not_uploaded = api.upload(file_path, True)

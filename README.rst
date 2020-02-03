@@ -180,7 +180,7 @@ Bugs and feature request are tracked on GitHub
 Author
 ------
 
-Jay MOULIN jaymoulin@gmail.com See also the list of contributors which participated in this program.
+Jay MOULIN jay@femtopixel.com See also the list of contributors which participated in this program.
 
 License
 -------
