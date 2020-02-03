@@ -88,6 +88,7 @@ def upload_file(
                 if not_uploaded:
                     logger.info("Not uploaded %s" % file_path)
                 if (uploaded or matched) and deduplicate_api:
+                    logger.info("Deduplicate API: saving %s")
                     deduplicate_api.save(file_path)
                 if remove and (uploaded or matched):
                     os.remove(file_path)

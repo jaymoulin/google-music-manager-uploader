@@ -8,7 +8,6 @@ Google Music Manager - Uploader
 ===============================
 
 
-
 .. image:: https://img.shields.io/github/release/jaymoulin/google-music-manager-uploader.svg
     :alt: latest release
     :target: http://github.com/jaymoulin/google-music-manager-uploaded/releases
@@ -24,6 +23,9 @@ Google Music Manager - Uploader
 .. image:: https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png
     :alt: Buy me a coffee
     :target: https://www.buymeacoffee.com/3Yu8ajd7W
+.. image:: https://badgen.net/badge/become/a%20patron/F96854
+    :alt: Become a Patron
+    :target: https://patreon.com/femtopixel
 
 This program will replace former Google MusicManager to upload your music library to Google Music
 

@@ -245,7 +245,11 @@ class Manager(Musicmanager):
                     err_msg += "(%s)" % sample_res.server_track_id
 
                 self.logger.warning("upload of '%r' rejected: %s", path, err_msg)
-                not_uploaded[path] = err_msg
+
+                if res_name == 'ALREADY_EXISTS':
+                    matched[path] = sample_res.server_track_id
+                else:
+                    not_uploaded[path] = err_msg
 
         # Send upload requests.
         if to_upload:
