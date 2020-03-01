@@ -78,19 +78,21 @@ def upload_file(
     while retry > 0:
         try:
             if os.path.isfile(file_path):
-                logger.info("Uploading %s? " % file_path)
+                logger.info("Should upload %s? " % file_path)
                 if deduplicate_api:
                     exists = deduplicate_api.exists(file_path)
                     logger.info("Deduplicate API: file exists? %s" % ("yes" if exists else "no"))
                     if exists:
                         return
+                logger.info("Uploading %s" % file_path)
                 uploaded, matched, not_uploaded = api.upload(file_path, True)
                 if not_uploaded:
                     logger.info("Not uploaded %s" % file_path)
                 if (uploaded or matched) and deduplicate_api:
-                    logger.info("Deduplicate API: saving %s")
+                    logger.info("Deduplicate API: saving %s" % file_path)
                     deduplicate_api.save(file_path)
                 if remove and (uploaded or matched):
+                    logger.info("Removing %s" % file_path)
                     os.remove(file_path)
             retry = 0
         except CallFailure as e:
