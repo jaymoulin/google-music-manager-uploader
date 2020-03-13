@@ -24,6 +24,8 @@ Google Music Manager - Uploader
     :alt: Become a Patron
     :target: https://patreon.com/jaymoulin
 
+(This product is available under a free and permissive license, but needs financial support to sustain its continued improvements. In addition to maintenance and stability there are many desirable features yet to be added.)
+
 This program will replace former Google MusicManager to upload your music library to Google Music
 
 This work is based upon `Simon Weber's Google Music API <https://github.com/simon-weber/gmusicapi>`_.
