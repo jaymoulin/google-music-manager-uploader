@@ -170,7 +170,7 @@ def main():
         "-r",
         "--remove",
         action='store_true',
-        help="Remove files if present (default: False)"
+        help="Remove the file on your hard drive if it was already successfully uploaded (default: False)"
     )
     parser.add_argument(
         "--uploader_id",
