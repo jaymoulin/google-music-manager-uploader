@@ -83,7 +83,7 @@ It will *NOT* upload already existing files, *ONLY* new files while the daemon i
                             Music Folder to upload from (default: .)
       --oauth OAUTH, -a OAUTH
                             Path to oauth file (default: ~/oauth)
-      -r, --remove          Remove files if present (default: False)
+      -r, --remove          Remove the file on your hard drive if it was already successfully uploaded (default: False)
       --uploader_id UPLOADER_ID, -u UPLOADER_ID
                             Uploader identification (should be an uppercase MAC
                             address) (default: <current eth0 MAC address>)
@@ -133,7 +133,7 @@ Exists
 
 +------+--------+--------------------------+----------------------------------------------------+
 | path | method | parameter                | status code                                        |
-+======+========+==========================+====================================================+
++======+========+======+===================+===================+================================+
 | /    | GET    | name | description       | value             | description                    |
 |      |        +------+-------------------+-------------------+--------------------------------+
 |      |        | path | path of your file | 200 or 204        | Your file was already uploaded |
@@ -146,7 +146,7 @@ Saving
 
 +------+--------+--------------------------+-------------------------------------------------+
 | path | method | parameter                | status code                                     |
-+======+========+==========================+=================================================+
++======+========+======+===================+==========+======================================+
 | /    | POST   | name | description       | value    | description                          |
 |      |        +------+-------------------+----------+--------------------------------------+
 |      |        | path | path of your file | whatever | Status code does not change anything |
@@ -157,7 +157,7 @@ Removing
 
 +------+--------+--------------------------+-------------------------------------------------+
 | path | method | parameter                | status code                                     |
-+======+========+==========================+=================================================+
++======+========+======+===================+==========+======================================+
 | /    | DELETE | name | description       | value    | description                          |
 |      |        +------+-------------------+----------+--------------------------------------+
 |      |        | path | path of your file | whatever | Status code does not change anything |
