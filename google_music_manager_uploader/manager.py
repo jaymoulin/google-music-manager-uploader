@@ -9,14 +9,13 @@ from gmusicapi import Musicmanager
 from gmusicapi.utils import utils
 from gmusicapi.exceptions import NotLoggedIn
 from gmusicapi.protocol import musicmanager, upload_pb2, locker_pb2
-from past.builtins import basestring
 import mutagen
 import base64
 import time
 
 
 class Manager(Musicmanager):
-    @utils.accept_singleton(basestring)
+    @utils.accept_singleton(str)
     @utils.empty_arg_shortcircuit(return_code='{}')
     def upload(self,
        filepaths,
